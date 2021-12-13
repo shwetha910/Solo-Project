@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const config = require('config');
 const {check,validationResult} = require('express-validator');
 
-const User = require('../../models/Child');
+const User = require('../../models/childModel');
 
 //POST api/child
 //access Public
@@ -42,7 +42,23 @@ async (req,res) =>{
             //console.log(password);
             await User.Users.create({child,gender,parent,email,password});
             //await  user.save();
-            return res.send('child record registered');
+            const temp = await User.Users.find({email},{_id:1});
+            //console.log(temp,temp.value ,"selected field")
+            const payload ={
+                user:{
+                    id:temp
+                }
+            }
+            //const jwtSecret = 'soloProject';
+            //const token = await jwt.sign(userid, jwtSecret,{expiresIn: '10 days'});
+            jwt.sign(payload,
+                config.get('jwtSecret'),
+                {expiresIn: '10 days'},
+                (err,token)=>{
+                    if(err) throw err;
+                    res.json({token});
+            });
+            //return res.json(token);
 
     } catch (error) {
         console.error(error,"server error creating document");
