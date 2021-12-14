@@ -24,41 +24,33 @@ async (req,res) =>{
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    let {child,gender,parent,email,password} =req.body;
+    const {child,gender,parent,email,password} =req.body;
 
     try {
-        let user = await User.Users.findOne({email});
+        let user = await User.findOne({email});
 
         if(user){
             return res.status(400).json({ errors: [{ msg: 'User already exists' }] });
         }
-            //user = new User({child,gender,parent,email,password});
-            //console.log(user,"user");
+            user = new User({child,gender,parent,email,password});
+
             const salt = await bcrypt.genSalt(10);
-            console.log(salt, typeof salt, "salt --- 10");
-    
-            //user.password = await bcrypt.hash(password, salt);
-            password = await bcrypt.hash(password, salt);
-            //console.log(password);
-            await User.Users.create({child,gender,parent,email,password});
-            //await  user.save();
-            const temp = await User.Users.find({email},{_id:1});
-            //console.log(temp,temp.value ,"selected field")
+
+            user.password = await bcrypt.hash(password, salt);
+                await  user.save();
+
             const payload ={
                 user:{
-                    id:temp
+                    id:user.id
                 }
             }
-            //const jwtSecret = 'soloProject';
-            //const token = await jwt.sign(userid, jwtSecret,{expiresIn: '10 days'});
-            jwt.sign(payload,
+           jwt.sign(payload,
                 config.get('jwtSecret'),
                 {expiresIn: '10 days'},
                 (err,token)=>{
                     if(err) throw err;
                     res.json({token});
             });
-            //return res.json(token);
 
     } catch (error) {
         console.error(error,"server error creating document");

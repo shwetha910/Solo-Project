@@ -8,11 +8,24 @@ const User = require('../../models/childModel');
 router.get('/me',auth,async(req,res) =>{
 
     try {
-       const profile = await User.Users.findById(req.user.id); 
+       const profile = await User.findById(req.user.id); 
        if(!profile){
            return res.status(400).json({msg:'No profile for this user'});
        }
        return res.json(profile);
+    } catch (error) {
+        console.log(error);
+    }
+});
+
+//delete profile and posts of the user
+
+router.delete('/',auth,async(req,res) =>{
+
+    try {
+        await User.findByIdAndRemove(req.user.id); 
+        return res.json('User deleted');
+
     } catch (error) {
         console.log(error);
     }

@@ -13,7 +13,7 @@ router.get('/',
 auth,
 async (req,res) =>{
     try {
-        const user = await User.Users.findById(req.user.id).select('-password');
+        const user = await User.findById(req.user.id).select('-password');
         res.json(user);
     } catch (error) {
         console.log(error);
@@ -37,7 +37,7 @@ async (req,res) =>{
     const {email,password} =req.body;
     console.log(req.body , "body");
     try {
-        let user = await User.Users.findOne({email});
+        let user = await User.findOne({email});
         console.log(user, "user user user");
         if(!user){
             return res.status(400).json({ errors: [{ msg: 'Invalid email or password' }] });
@@ -49,11 +49,10 @@ async (req,res) =>{
             return res.status(400).json({ errors: [{ msg: 'Invalid email or password' }] });
         }
         
-        const temp = await User.Users.find({email},{_id:1});
+        const temp = await User.find({email},{_id:1});
 
         const payload ={
             user:{
-                // id:temp
                 id:user.id
             }
         }
